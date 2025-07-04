@@ -1,0 +1,1490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Realistic Flip Book - Click Only</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&display=swap'); /* Tambahkan Merriweather */
+        @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap'); /* CSS yang Anda berikan */
+
+        /* CSS yang Anda berikan */
+        :root {
+            --warna-bg: rgba(0, 0, 0, .5); 
+            --warna-teks: #fff;
+            --warna-bingkai: #fff;
+            --bingkai: 8px;
+            --bingkai-kiri: 2px solid var(--warna-bingkai);
+            --bingkai-kanan: 2px solid var(--warna-bingkai);
+            --gaya-font: 'Quicksand', sans-serif;
+            --gaya-font2: 'Dancing Script', sans-serif;
+        }
+        @keyframes fanim {0% {background-position: 0% 0%;}25% {background-position: 100% 100%;} 50% {background-position: 0% 100%;} 75% {background-position: 50% 50%;} 100% {background-position: 0% 0%;}}
+        body{
+            /* background-color:#000; */ /* Ini bisa konflik dengan background-image Anda, jadi saya komentari */
+            font-family:var(--gaya-font);
+            padding: 20px 25px;
+            -webkit-user-select: none; 
+            -ms-user-select: none; 
+            user-select: none;
+        } 
+        a{text-decoration:none;}
+        body::before{
+            content:"\00A9 Johan Wirawan"; /* TEKS WATERMARK DIUBAH DI SINI */
+            padding:8px;
+            border-radius:12px;
+            background:black;
+            color:white;
+            opacity:.7;
+            font-size:9px;
+            position:fixed;
+            bottom:20px;
+            left:20px;
+            z-index:999;
+        }
+        #bodyblur{opacity:.2;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.3);transition:all 1s ease;} 
+        #wallpaper{width:100%;height:100%;transform: scale(2);transition:all 1.3s ease;}
+        #beneranblur{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.3);-webkit-backdrop-filter:blur(0px); backdrop-filter:blur(0px);transition:all 3s ease;}
+
+        @keyframes jj{0%  {transform: scale(1.1);} 50% {transform: scale(1.2);} 100% {transform: scale(1.1);}}
+        @keyframes rts{from {transform:scale(.1);} to {transform:scale(1);}}
+        @keyframes rto{from {transform:scale(1);} to {transform:scale(1.1);}}
+        @keyframes aniopa{0% {transform: scale(1);} 50% {transform: scale(.75);} 100% {transform: scale(1);}}
+        @keyframes rtf{from {transform: rotate(0deg);} to {transform: rotate(360deg);}} @keyframes rt{from {transform: scale(.9);/* transform: rotate(-5deg); */} to {transform: scale(1);/* transform: rotate(5deg); */}}
+        @keyframes kont{0%  {left:-1px; top:-3px;} 50% {left:1px; top:3px;} 100% {left:-1px; top:-3px;}}
+
+        blockquote{position:absolute;opacity:0;visibility:hidden;background:var(--warna-bg);border-radius:none;box-shadow: rgba(255,255,255, 0.3) 0px 7px 29px 0px;transform: scale(.1);transition:all 1s ease;margin-top:120px;margin-left:0;margin-right:0;color:var(--warna-teks);}
+        blockquote{width:400px;line-height:1.3em;padding:20px 15px 10px 15px;margin:0 15px;margin-bottom:10px;border: 1px solid #fff;border-radius:15px}
+        blockquote p{font-size:15px;font-weight:700;line-height:1.45em;text-shadow: 0px 2px 2px rgba(0, 0, 0, .8);transition:all .5s ease;}
+        #kalimat6ngetik, .kiri{text-align:left !important}
+        blockquote p i{font-style:normal;font-size:13px;font-weight:400;}
+        blockquote p b.alt{font-size:17px;}
+        blockquote p b.merah{color:red}
+        blockquote p b.kuning{color:yellow}
+        blockquote p b.putih{padding-left:3px;padding-right:3px;background:white;}
+        blockquote p b.garismerah{font-weight:700;border-bottom:2px solid red}
+        blockquote p b.gariskuning{font-weight:700;border-bottom:2px solid yellow}
+        blockquote p:not(#opsL, #kalimat){display:none;}
+        blockquote p:not(#kalimat6ngetik){text-align:center;}
+        blockquote > #opsL{margin-right:0px;text-align:right !important;font-size:9px;font-weight:400;line-height:0;margin-top:24px;color:white;opacity:0;transition:all .2s ease;}
+
+        @keyframes leaves {0% {transform: scale(1.0);} 100% {transform: scale(.85);}}
+        #loveIn{animation: leaves .7s ease-in-out infinite alternate;-webkit-animation: leaves 1s ease-in-out infinite alternate;} 
+        .lovein{background:#fff;border-radius:50%;width:40px;height:40px;padding:10px;font-size:30px;display:flex;align-items:center;text-align:center;justify-content:center;transition:all .3s ease;}
+        .lovein:hover{cursor:pointer}
+        .lovein svg{stroke:#ff0000;stroke-width:1.3;fill:none;width:35px;height:35px}
+
+        #Tombol, #Tombol2, #TombolWA{position:relative;opacity:0;margin-left:auto;margin-right:auto;display:flex;align-items:left;list-style:none;transition:all .8s ease;}
+        #Tombol a, #Tombol2 a, #TombolWA a{cursor:pointer;display:inline-flex;align-items:center; margin:0;margin:10px;transition:all .2s ease;padding:10px;outline:0;border:1px solid white;border-radius:8px;line-height:15px;background:var(--warna-bg);color:white;font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;box-shadow: rgba(255,255,255, 0.15) 0px 7px 29px 0px;z-index:1}
+
+        #Content{animation-name:none;animation-duration: 3s;animation-iteration-count: infinite;position:relative;opacity:0;margin-top:50px;width:100%;height:180px;transition:all .7s ease;}
+        #Content > *{display:flex;align-items:center;justify-content:center;margin-top:1px;}
+        .kumpulanstiker > img{display:none;background:rgba(255,255,255, .7);box-shadow: 0 4px 30px rgba(255,255,255, 0.2);backdrop-filter: blur(5px);-webkit-backdrop-filter: blur(5px);border: 1px solid rgba(255, 255, 255, 1);border-radius: 50%;padding:10px;width:92px;height:92px;margin:8px 0;}
+        #fotostiker{opacity:.1;transition:all 1.2s ease;transform: scale(.1);}
+        .halo{font-size:17px !important;position:relative;margin:15px 0 0 0} 
+        .halo.sty2{align-items:center !important;text-align:left !important;font-size:14px !important;font-weight:400;}
+        .halo.sty3{position:absolute !important;font-size:14px !important;font-weight:400 !important;margin:30px 20px !important;}
+        #kalbawah{position: absolute;opacity:0;transform: scale(.3);margin:8px 0;font-family:var(--gaya-font2);font-size:20px;font-weight:700;color:white;text-shadow: 0px 2px 2px rgba(0, 0, 0, .8);transition:all .5s ease;}
+        #tanggal{position: absolute;opacity:0;transform: scale(.3);transition:all .5s ease;}
+
+        #fotolove img{transition:all .5s ease;width:75px;height:75px;padding:0;background:none}
+        #ket, #kot, #ketgeser, .halo{text-shadow: 0px 2px 2px rgba(0, 0, 0, .8);font-size:17px;font-weight:700;color:white}
+        #ket, #kot{transition:all .7s ease;margin-top:20px !important;font-size:12px;font-weight:400;opacity:.8}
+        #kot a{font-weight:700;color:yellow}
+
+        .swal2-modal > *{color:white}
+        .swal2-title{line-height:1.3em;font-size:18px;text-align:center;padding:15px 30px 0 30px;}
+        .swal2-container.swal2-backdrop-show{background: rgba(0,0,0,.5);}
+        .swal2-timer-progress-bar-container > *{opacity:.7;background:#00B6FF;margin:0 2px}
+        .swal2-modal{box-shadow: rgba(255,255,255, 0.3) 0px 7px 29px 0px;background:rgba(0,0,0,.9);max-width:320px;border-right:var(--bingkai-kanan);border-left:var(--bingkai-kiri);border-radius:4px;top:-50px;}
+
+        .fa-heart {opacity:.2;color:white;font-size: 20px;position: absolute;animation:  heartMove linear 1;top: -10vh;z-index: 0;}
+        @keyframes heartMove {0%{transform: translateY(-10vh) ;} 100%{transform: translateY(100vh) ;}}
+        .sembunyi, #kado2, #kado3{display:none !important}
+        /* Akhir CSS yang Anda berikan */
+
+        /* General Styling */
+        body {
+            /* margin: 0; */ /* Ini bisa konflik dengan padding Anda di CSS yang diberikan, jadi saya komentari */
+            /* padding: 0; */ /* Ini bisa konflik dengan padding Anda di CSS yang diberikan, jadi saya komentari */
+            background-color: #e0e0e0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Merriweather', serif; /* Gunakan Merriweather sebagai default */
+            overflow: hidden;
+            background-image: url('https://raw.githubusercontent.com/johanwirawan/johanwirawannnn/refs/heads/main/starfalls_nM1hcYVa.gif');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+
+        /* Keyframes for the continuous rotateY animation */
+        @keyframes rotateBook {
+            0% { transform: rotateY(-10deg) rotateX(5deg); }
+            50% { transform: rotateY(10deg) rotateX(5deg); }
+            100% { transform: rotateY(-10deg) rotateX(5deg); }
+        }
+
+        /* Container for the book */
+        .book-container {
+            width: 300px;
+            height: 420px;
+            perspective: 1800px;
+            position: relative;
+            transform-style: preserve-3d;
+            box-shadow: 20px 20px 60px rgba(255, 255, 255, 0.4),
+                        -10px 10px 30px rgba(255, 255, 255, 0.1),
+                        -20px -20px 60px rgba(0, 0, 0, 0.3),
+                        10px -10px 30px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            animation: rotateBook 15s ease-in-out infinite alternate;
+            transform: rotateY(-10deg) rotateX(5deg) translateZ(0);
+            transition: transform 0.8s ease-in-out, box-shadow 0.8s ease-in-out;
+        }
+
+        /* Pause animation and apply hover transform */
+        .book-container:hover {
+            animation-play-state: paused;
+            transform: rotateY(0deg) rotateX(0deg) translateZ(20px);
+            box-shadow: 10px 10px 30px rgba(255, 255, 255, 0.3),
+                        -5px 5px 15px rgba(255, 255, 255, 0.08),
+                        -10px -10px 30px rgba(0, 0, 0, 0.25),
+                        5px -5px 15px rgba(0, -5px, 15px, 0.1);
+        }
+
+        /* The Book structure itself */
+        .book {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+        }
+
+        /* Spine (Punggung Buku) */
+        .book-spine {
+            width: 25px;
+            height: 100%;
+            background-color: #333;
+            position: absolute;
+            top: 0;
+            left: 0;
+            transform-origin: center center;
+            transform: rotateY(0deg) translateZ(0px);
+            border-radius: 8px 0 0 8px;
+            box-shadow: inset 5px 0 15px rgba(0, 0, 0, 0.8),
+                        inset -5px 0 15px rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 5px;
+            box-sizing: border-box;
+            color: #f0f0f0;
+            font-size: 0.9em;
+            text-align: center;
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            z-index: 20;
+            font-family: 'Merriweather', serif;
+            background: linear-gradient(to right, #444, #222, #444);
+            border-left: 1px solid rgba(169, 169, 169, 0.2);
+            border-right: 1px solid rgba(105, 105, 105, 0.3);
+            line-height: 1.2;
+        }
+        .book-spine p {
+            margin: 0;
+            padding: 0;
+            font-size: 0.8em;
+        }
+
+        /* Front Cover */
+        .book-cover.front {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            background-image: url('https://raw.githubusercontent.com/johanwirawan/johanwirawannnn/refs/heads/main/f4e899dc-1d21-4143-b592-d68a272b8677.jpeg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: #fff;
+            transform-origin: left center;
+            transform: rotateY(0deg) translateZ(1px);
+            transition: transform 1.0s cubic-bezier(0.645, 0.045, 0.355, 1.000);
+            border-radius: 0 8px 8px 0;
+            box-shadow: -8px 0 20px rgba(105, 105, 105, 0.3),
+                        inset 0 0 15px rgba(255, 255, 255, 0.5);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.5em;
+            color: #333;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+            padding: 20px;
+            box-sizing: border-box;
+            text-align: center;
+            font-family: 'Dancing Script', cursive;
+            z-index: 15;
+            overflow: hidden;
+        }
+        .book-cover.front p {
+            display: none;
+        }
+
+        /* Tambahkan judul di sini */
+        .book-cover.front h1 {
+            font-size: 3em;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            font-family: 'Dancing Script', cursive;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Lapisan untuk tekstur atau efek glossy pada cover */
+        .book-cover.front::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 10% 10%, rgba(255,255,255,0.5) 0%, transparent 40%),
+                        radial-gradient(circle at 90% 90%, rgba(0,0,0,0.05) 0%, transparent 40%);
+            opacity: 0.8;
+            transition: opacity 0.3s;
+        }
+
+        /* Kelas untuk sampul depan yang sudah terbuka dan menempel */
+        .book-cover.front.open {
+            transform: rotateY(-180deg) translateZ(0px);
+            width: calc(100% - 25px);
+            /* Pastikan tidak ada bayangan/border yang membuat celah */
+            box-shadow: none !important;
+            border-right: none !important;
+            transition: transform 0.8s ease-out, width 0.8s ease-out;
+            z-index: 1; /* Cover di belakang halaman saat terbuka */
+            background-image: none;
+            background-color: #f5f0e1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .book-cover.front.open h1 {
+            display: none;
+        }
+
+        /* Gaya untuk garis hitam di tepi sampul depan saat terbuka */
+        .cover-edge-line {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 100%; /* Posisikan tepat di tepi kanan cover (yang jadi tepi kiri saat terbuka) */
+            width: 1px; /* Lebar garis */
+            background-color: #000; /* Warna hitam */
+            z-index: 2; /* Pastikan di atas background cover, tapi di bawah halaman utama */
+            opacity: 0; /* Awalnya tidak terlihat */
+            transition: opacity 0.8s ease-out; /* Efek fade in saat terbuka */
+        }
+
+        /* Tampilkan garis hitam saat cover terbuka */
+        .book-cover.front.open .cover-edge-line {
+            opacity: 1;
+        }
+
+
+        /* Back Cover */
+        .book-cover.back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            transform-origin: left center;
+            transform: rotateY(180deg) translateZ(1px);
+            backface-visibility: hidden;
+            border-radius: 0 8px 8px 0;
+            box-shadow: -8px 0 15px rgba(0, 0, 0, 0.1),
+                        inset 0 0 15px rgba(255, 255, 255, 0.3);
+            z-index: 5;
+        }
+
+        /* Paper Stack (Wrapper untuk semua lembaran buku) */
+        .paper-stack {
+            position: absolute;
+            width: calc(100% - 25px); /* Lebar kertas sama dengan lebar cover saat terbuka */
+            height: calc(100% - 6px);
+            background-color: #ede7d1;
+            top: 3px;
+            left: 25px; /* Posisikan ke kanan sejauh lebar spine */
+            box-shadow: inset 8px 0 15px rgba(0, 0, 0, 0.2),
+                        inset -8px 0 15px rgba(255, 255, 255, 0.4);
+            border-radius: 0 5px 5px 0;
+            transform-style: preserve-3d;
+            transform: translateZ(0px);
+            z-index: 10;
+            overflow: hidden;
+            border-right: 1px solid #ccc;
+        }
+
+        /* Efek Tepi Halaman */
+        .paper-stack::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -2px; /* Posisikan ini sedikit menjorok ke spine */
+            width: 2px;
+            height: 100%;
+            background: repeating-linear-gradient(to bottom, #f0f0f0, #f0f0f0 1px, #f5f0e1 1px, #f5f0e1 3px);
+            z-index: -1;
+            transform-origin: right center;
+            transform: rotateY(90deg) translateX(2px) translateZ(-1.5px);
+            opacity: 0.8;
+        }
+
+        /* Wrapper untuk semua halaman yang bisa dibalik */
+        .pages-wrapper {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+        }
+
+        /* Setiap Halaman Buku - Warna Kertas Novel Lama */
+        .book-page {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #f5f0e1;
+            padding: 14px;
+            box-sizing: border-box;
+            transform-origin: left center;
+            transform-style: preserve-3d;
+            transition: transform 0.8s cubic-bezier(0.4, 0.0, 0.2, 1);
+            backface-visibility: hidden;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            z-index: 1; /* Z-index default */
+            /* Pastikan halaman terakhir punya posisi relative atau absolute untuk kanvas */
+            position: absolute;
+        }
+
+        /* Ketika halaman dibalik */
+        .book-page.flipped {
+            transform: rotateY(-180deg) translateZ(10px);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.4),
+                        -5px 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Kelas untuk Halaman yang Sudah Jatuh/Menempel ke Kiri */
+        .book-page.stacked-left {
+            transform: rotateY(-180deg) translateZ(0px) translateX(-2px);
+            transition: transform 0.8s ease-out, box-shadow 0.8s ease-out;
+        }
+
+        /* Konten di dalam setiap halaman */
+        .page-content {
+            width: 100%;
+            height: 100%;
+            color: #333;
+            overflow: hidden;
+            text-align: justify;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            position: relative; /* Penting agar canvas dan teks bisa diatur posisinya */
+        }
+
+        /* Penyesuaian H2 (judul BAB) */
+        .page-content h2 {
+            font-family: 'Dancing Script', cursive;
+            font-size: 16px;
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 2px;
+            line-height: 1;
+            color: #5d5d5d;
+        }
+
+        /* Penyesuaian Paragraf */
+        .page-content p {
+            font-size: 10.5px;
+            line-height: 1.4;
+            margin-bottom: 0.3em;
+        }
+
+        .page-content p:last-of-type {
+            margin-bottom: 0;
+        }
+
+        /* Area Navigasi untuk Klik */
+        .page-nav-area {
+            position: absolute;
+            top: 0;
+            width: 50%;
+            height: 100%;
+            cursor: pointer;
+            z-index: 100;
+        }
+
+        .page-nav-area.left {
+            left: 0;
+        }
+
+        .page-nav-area.right {
+            right: 0;
+        }
+
+        /* Style for the back of the flipped page */
+        .book-page .page-back-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #f5f0e1;
+            border-radius: 0 8px 8px 0;
+            transform: rotateY(180deg);
+            backface-visibility: hidden;
+            padding: 15px;
+            box-sizing: border-box;
+            color: #555;
+            text-align: center;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            font-size: 0.8em;
+            font-style: italic;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1) inset;
+            padding-bottom: 10px;
+        }
+
+        /* --- CSS for Heart Particle Effect --- */
+        .book-page #heartCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
+            z-index: 0; /* Pastikan di bawah teks Terima Kasih */
+            background-color: rgba(0, 0, 0, 0); /* Transparan */
+            pointer-events: none; /* Agar klik halaman tetap berfungsi */
+            padding: 0 !important; /* Hapus padding agar canvas full */
+            box-sizing: border-box; /* Pastikan padding dihitung dalam width/height */
+        }
+
+        /* Modifikasi .page-content untuk halaman terakhir agar canvas dan teks center */
+        #page21 .page-content {
+            padding: 0; /* Hapus padding agar canvas dan teks bisa penuh */
+            justify-content: center;
+            align-items: center;
+            overflow: hidden; /* Penting untuk mencegah scrollbar */
+        }
+
+        /* Gaya untuk teks "Terima Kasih^^" dengan efek ketikan */
+        .thank-you-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Dancing Script', cursive;
+            font-size: 3em; /* Ukuran besar */
+            color: black; /* Warna font hitam */
+            text-shadow: 2px 2px 5px rgba(255, 255, 255, 0.7), 0 0 15px rgba(0,0,0,0.1); /* Bayangan dan glow lembut */
+            z-index: 1; /* Di atas canvas hati */
+            text-align: center;
+            white-space: nowrap; /* Pastikan tidak pecah baris */
+            opacity: 0; /* Sembunyikan awal */
+            width: 0; /* Lebar awal nol untuk efek ketikan */
+            overflow: hidden; /* Sembunyikan teks yang melebihi lebar */
+            border-right: .15em solid orange; /* Cursor ketikan */
+            animation: typing 3s steps(20, end) forwards, blink-caret .75s step-end infinite;
+        }
+
+        /* Animasi ketikan */
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% } /* Lebar penuh agar teks terlihat */
+        }
+
+        /* Animasi kursor berkedip */
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: orange }
+        }
+
+        /* CSS baru untuk tombol mikrofon - DIPINDAHKAN KE LUAR BOOK-CONTAINER */
+        .mute-button {
+            position: fixed; /* Menggunakan fixed agar selalu di posisi yang sama relatif terhadap viewport */
+            top: 20px; /* Jarak dari atas */
+            left: 20px; /* Jarak dari kiri */
+            z-index: 999; /* Pastikan di atas semua elemen lain termasuk loading screen */
+            cursor: pointer;
+            width: 40px; /* Ukuran ikon */
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: background-color 0.3s ease;
+        }
+
+        .mute-button:hover {
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+
+        .mute-button img {
+            width: 24px; /* Ukuran gambar mikrofon */
+            height: 24px;
+        }
+
+        /* CSS baru untuk layar loading */
+        #loadingScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #222; /* Warna latar belakang gelap */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999; /* Pastikan di atas semua elemen */
+            color: #fff;
+            font-family: 'Merriweather', serif;
+            transition: opacity 1s ease-out; /* Efek fade-out */
+            opacity: 1;
+        }
+
+        #loadingScreen.hidden {
+            opacity: 0;
+            pointer-events: none; /* Nonaktifkan interaksi setelah tersembunyi */
+        }
+
+        #loadingScreen h2 {
+            font-size: 2em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        #loadingScreen p {
+            font-size: 1.1em;
+            margin-top: 10px;
+            text-align: center;
+            max-width: 80%;
+        }
+
+        #loadingScreen .tutorial-gif {
+            width: 300px; /* Sesuaikan ukuran GIF */
+            height: auto;
+            border: 2px solid #fff;
+            border-radius: 8px;
+            margin-top: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #fff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Styling for the clock */
+        #live-clock {
+            position: fixed;
+            top: 20px; /* Adjust as needed */
+            right: 20px; /* Adjust as needed */
+            z-index: 999;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-family: 'Quicksand', sans-serif; /* Use the font from the provided CSS */
+            font-size: 1.2em;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <div id="loadingScreen">
+        <div class="spinner"></div>
+        <h2>Tunggu Eak^^...</h2>
+        <p>Klik sisi kanan halaman untuk kehalaman selanjutnya.</p>
+        <p>Klik sisi kiri halaman untuk kehalaman sebelumnya.</p>
+        <img src="https://raw.githubusercontent.com/johanwirawan/johanwirawannnn/refs/heads/main/f27b09ffaeee41d4c9d4f8005186c6f1.gif" alt="Tutorial Membalik Halaman" class="tutorial-gif">
+    </div>
+
+    <div class="mute-button" id="muteButton">
+        <img src="https://raw.githubusercontent.com/johanwirawan/johanwirawannnn/refs/heads/main/images%20(22)-picsay.jpeg" alt="Mute/Unmute">
+    </div>
+
+    <div id="live-clock"></div>
+
+    <audio id="flipPageSound" preload="auto">
+        <source src="https://raw.githubusercontent.com/johanwirawan/johanwirawannnn/main/Page%20Turn%20Sound%20Effect!%20Flip%20Sound%20Effect!%20(mp3cut.net)%20(1).m4a" type="audio/mp4">
+        Your browser does not support the audio element.
+    </audio>
+
+    <audio id="backgroundMusic" loop preload="auto">
+        <source src="https://raw.githubusercontent.com/johanwirawan/johanwirawannnn/main/Virgoun%20-%20Bukti%20A%20Testament%20(Official%20Lyric%20Video).mp3" type="audio/mp3">
+        Your browser does not support the audio element.
+    </audio>
+
+    <div class="book-container">
+        <div class="book">
+            <div class="book-spine">
+                <p id="spine-page-info"></p>
+            </div>
+
+            <div class="book-cover front">
+                <h1>Rindu</h1>
+                <div class="cover-edge-line"></div>
+                <div class="page-nav-area right" id="cover-right-click-area"></div>
+            </div>
+
+            <div class="paper-stack">
+                <div class="pages-wrapper">
+                    <div class="book-page" id="page1">
+                        <div class="page-content">
+                            <h2>PEMBUKAAN</h2>
+                            <p>Dalam heningnya malam, rembulan terang menerangi kota kecil yang terletak di tepi pantai. Cahaya lembutnya menyinari jalan-jalan yang sepi, menciptakan suasana romantis yang tak tertandingi. Kota kecil ini menjadi saksi dari berbagai kisah cinta dan rindu yang memenuhi hati manusia.</p>
+                            <p>Di antara ribuan cerita rindu yang terjalin di kota ini, ada satu kisah yang begitu mendalam dan tak terlupakan. Sebuah kisah yang melibatkan dua jiwa yang terpisah oleh waktu dan jarak, namun tetap terhubung oleh rasa rindu yang tak terucapkan.</p>
+                        </div>
+                        <div class="page-back-content">Halaman 1</div>
+                        <div class="page-nav-area left"></div>
+                        <div class="page-nav-area right"></div>
+                    </div>
+
+                    <div class="book-page" id="page2">
+                        <div class="page-content">
+                            <p>Kota kecil ini adalah saksi bisu dari setiap detik yang dilalui oleh mereka.</p>
+                            <p>Di setiap sudut jalan, di antara tiupan angin yang lembut, terdapat jejak-jejak perjalanan hati yang penuh dengan rindu.</p>
+                            <p>Ribuan mata yang melihat matahari terbenam, berharap bahwa cinta mereka akan kembali hadir, dan rindu itu akan terobati.</p>
+                            <p>Tepi pantai menjadi tempat bertemunya dua jiwa yang saling mencari. Di balik gemuruh ombak yang menenangkan, terdapat sebuah takdir yang mempertemukan mereka di saat yang tepat. Kedua orang ini, Sarah dan Ryan, adalah pemeran utama dalam kisah rindu yang akan menggetarkan hati.</p>
+                        </div>
+                        <div class="page-back-content">Halaman 2</div>
+                        <div class="page-nav-area left"></div>
+                        <div class="page-nav-area right"></div>
+                    </div>
+
+                    <div class="book-page" id="page3">
+                        <div class="page-content">
+                            <h2>BAB. 1<br>Pertemuan di Matahari Terbenam</h2>
+                            <p>Dalam cahaya kuning keemasan matahari terbenam, Sarah berjalan sendirian di sepanjang pantai yang sepi. Suara ombak yang lembut memecah kesunyian, menciptakan harmoni alam yang indah. Hatinya dipenuhi oleh kerinduan yang tak terucapkan, suatu keinginan untuk menemukan makna sejati dalam kehidupannya.</p>
+                            <p>Sementara itu, Ryan duduk sendiri di batu besar yang berada di tepi pantai. Pandangannya terhenti pada matahari yang perlahan tenggelam ke laut, mengirimkan sinar berwarna merah jingga yang memukau. Dalam keheningan senja, ia merenungkan tentang arti hidup dan tujuan yang seolah menghilang dalam keriuhan kota besar.</p>
+                        </div>
+                        <div class="page-back-content">Halaman 3</div>
+                        <div class="page-nav-area left"></div>
+                        <div class="page-nav-area right"></div>
+                    </div>
+
+                    <div class="book-page" id="page4">
+                        <div class="page-content">
+                            <p>Takdir membawa mereka berdua ke tempat yang sama pada saat itu.</p>
+                            <p>Sarah, dengan langkah ringan, terus berjalan mendekati batu di mana Ryan duduk. Saat mata mereka bertemu, dunia seolah berhenti berputar sejenak. Rindu yang tak terungkap dalam hati mereka bergetar dalam setiap tatapan.</p>
+                            <p>Sarah tersenyum, merasa ada kekuatan yang saling menarik di antara mereka. Dia mendekati Ryan dengan langkah perlahan, seperti dua jiwa yang saling mencari. Ryan melihat ke dalam mata Sarah dan merasakan getaran yang sama, seolah menemukan sesuatu yang telah hilang dalam hidupnya.</p>
+                        </div>
+                        <div class="page-back-content">Halaman 4</div>
+                        <div class="page-nav-area left"></div>
+                        <div class="page-nav-area right"></div>
+                    </div>
+
+                    <div class="book-page" id="page5">
+                        <div class="page-content">
+                            <p>"Malam yang indah," ucap Sarah dengan suara lembut, memecah keheningan di sekitar mereka.</p>
+                            <p>Ryan tersenyum, merasakan getaran kehangatan dalam hatinya. "Benar sekali. Tidak ada yang bisa menandingi keindahan matahari terbenam di sini."</p>
+                            <p>Mereka terus berbicara, saling berbagi cerita dan pengalaman hidup mereka. Dalam setiap kata yang mereka ucapkan, rasa saling mengerti dan kecocokan seakan terasa begitu kuat di antara mereka. Mereka tak henti-hentinya tertawa, berbicara tentang impian dan harapan mereka.</p>
+                        </div>
+                        <div class="page-back-content">Halaman 5</div>
+                        <div class="page-nav-area left"></div>
+                        <div class="page-nav-area right"></div>
+                    </div>
+
+                    <div class="book-page" id="page6">
+                        <div class="page-content">
+                            <p>Saat matahari akhirnya tenggelam sepenuhnya di balik cakrawala, mereka terdiam sejenak, menikmati keheningan malam yang penuh misteri. Mereka merasakan rindu yang tak terungkap di dalam hati masing-masing, keinginan untuk menjaga momen indah ini hidup dalam ingatan mereka.</p>
+                            <p>"Apakah kita akan bertemu lagi?" tanya Sarah dengan suara yang penuh harap.</p>
+                            <p>Ryan menatapnya dengan penuh keyakinan. "Aku berharap begitu. Ada sesuatu yang istimewa di antara kita, Sarah. Saya merasa kita harus melanjutkan cerita ini."</p>
+                        </div>
+                        <div class="page-back-content">Halaman 6</div>
+                        <div class="page-nav-area left"></div>
+                        <div class="page-nav-area right"></div>
+                    </div>
+
+                    <div class="book-page" id="page7">
+                        <div class="page-content">
+                            <p>Mereka berpisah dengan janji untuk bertemu lagi. Rindu yang hadir di dalam hati mereka semakin kuat, membangkitkan keinginan untuk menjalin hubungan yang lebih dalam. Pertemuan di matahari terbenam itu hanya awal dari kisah cinta yang penuh rindu yang akan mereka jalani bersama.</p>
+                            <p>Mereka berjalan menjauh, meninggalkan pantai yang penuh kenangan di balik mereka. Namun, di dalam hati mereka, terpatri keyakinan bahwa takdir akan mempertemukan mereka kembali, mengisi hidup mereka dengan cinta yang membara dan rindu yang tak terhingga.</p>
+                        </div>
+                        <div class="page-back-content">Halaman 7</div>
+                        <div class="page-nav-area left"></div>
+                        <div class="page-nav-area right"></div>
+                    </div>
+
+                    <div class="book-page" id="page8">
+                        <div class="page-content">
+                            <p>Mereka tidak tahu apa yang akan terjadi di masa depan, namun dengan matahari terbenam sebagai saksi, Sarah dan Ryan merasa bahwa takdir telah mengikat mereka bersama dalam kisah cinta yang takkan terlupakan.</p>
+                            <p>Mereka yakin bahwa rindu itu adalah panggilan hati yang tak bisa diabaikan, dan mereka akan berjuang untuk menjaga api cinta itu tetap menyala, meski waktu dan jarak memisahkan mereka.</p>
+                        </div>
+                        <div class="page-back-content">Halaman 8</div>
+                        <div class="page-nav-area left"></div>
+                        <div class="page-nav-area right"></div>
+                    </div>
+
+                    <div class="book-page" id="page9">
+                        <div class="page-content">
+                            <h2>BAB. 2<br>Kisah Cinta yang Dipisahkan oleh Waktu</h2>
+                            <p>Di balik langit biru yang cerah, cerita cinta Sarah dan Ryan terus berlanjut. Namun, takdir memainkan peran yang rumit dalam menjalin hubungan mereka. Waktu yang tak bisa dihentikan menjadi penghalang di antara mereka, memisahkan mereka dalam jarak yang tak terjangkau.</p>
+                            <p>Sarah, seorang wanita yang ceria dan bersemangat, menjalani kehidupannya di kota kecil ini dengan penuh dedikasi. Dia memenuhi harapannya sebagai seorang **bidan**, memberikan pelayanan kesehatan dan pendampingan kepada para ibu hamil, serta membantu persalinan dengan penuh kasih sayang. Tangannya sigap menolong setiap nyawa baru lahir, dan senyumnya menenangkan setiap ibu yang berjuang. Namun, di balik senyumnya yang cerah, terdapat rindu yang terpendam dalam hatinya. Rindu akan kehadiran Ryan, pria yang telah membuat hatinya berbunga-bunga.</p>
+                        </div>
+                        <div class="page-back-content">Halaman 9</div>
+                        <div class="page-nav-area left"></div>
+                        <div class="page-nav-area right"></div>
+                    </div>
+
+                    <div class="book-page" id="page10">
+                        <div class="page-content">
+                            <p>Ryan, di sisi lain, menjalani kehidupan yang sibuk di kota besar. Dia adalah seorang pebisnis sukses yang diperhitungkan di dunia bisnis internasional. Tetapi, kesuksesannya tidak mampu menghilangkan kekosongan dalam hatinya. Rindu akan kehangatan dan kebersamaan dengan Sarah terus menghantuinya, meskipun jarak memisahkan mereka.</p>
+                            <p>Setiap malam, Sarah dan Ryan saling memandang langit yang sama. Mereka merindukan saat-saat indah yang pernah mereka habiskan bersama, saat mereka berjalan berpegangan tangan di tepi pantai, atau ketika mereka duduk bersama sambil tertawa riang. Namun, jarak yang memisahkan mereka membuat rindu itu semakin dalam, semakin menyakitkan.</p>
+                        </div>
+                        <div class="page-back-content">Halaman 10</div>
+                        <div class="page-nav-area left"></div>
+                        <div class="page-nav-area right"></div>
+                    </div>
+
+                    <div class="book-page" id="page11">
+                        <div class="page-content">
+                            <p>Namun, cinta mereka tidak luntur oleh waktu dan jarak. Mereka tetap kuat dan bertekad untuk menjaga api cinta mereka tetap menyala. Setiap percakapan telepon, setiap pesan singkat, dan setiap kata sayang yang terucap melalui teknologi membawa mereka lebih dekat satu sama lain, meskipun dalam keadaan terpisah.</p>
+                            <p>Kisah cinta ini menjadi semakin rumit ketika tuntutan hidup dan tanggung jawab menghampiri mereka. Sarah dan Ryan saling mendukung dan memahami, meskipun terkadang keadaan membuat mereka terpaksa memprioritaskan karir dan tanggung jawab pribadi. Namun, hati mereka tetap bertaut erat, tak pernah melepaskan cinta yang mereka miliki.</p>
+                        </div>
+                        <div class="page-back-content">Halaman 11</div>
+                        <div class="page-nav-area left"></div>
+                        <div class="page-nav-area right"></div>
+                    </div>
+
+                    <div class="book-page" id="page12">
+                        <div class="page-content">
+                            <p>Dalam setiap momen yang mereka miliki bersama, baik di dunia nyata maupun dalam imajinasi mereka, mereka merasakan keajaiban cinta yang tak tergoyahkan. Mereka menulis surat-surat panjang, membagikan cerita-cerita, dan mempercayai bahwa suatu hari nanti waktu dan jarak akan bersatu kembali.</p>
+                            <p>Kisah cinta ini menjadi inspirasi bagi banyak orang di sekitar mereka.</p>
+                            <p>Sarah dan Ryan mengajarkan tentang kekuatan cinta yang mampu mengatasi segala rintangan dan mempertahankan hubungan meskipun dalam keadaan yang sulit. Mereka menunjukkan bahwa rindu adalah bagian alami dari cinta, dan dengan kesabaran dan kepercayaan, cinta dapat bertahan bahkan di tengah badai yang menghadang.</p>
+                        </div>
+                        <div class="page-back-content">Halaman 12</div>
+                        <div class="page-nav-area left"></div>
+                        <div class="page-nav-area right"></div>
+                    </div>
+
+                    <div class="book-page" id="page13">
+                        <div class="page-content">
+                            <p>Namun, pertanyaan yang menghantui pikiran mereka adalah: kapan waktu akan mempertemukan mereka kembali? Apakah cinta mereka cukup kuat untuk bertahan melawan segala rintangan yang dihadapi? Hanya waktu yang dapat memberikan jawaban, sementara mereka terus menjalani hidup dengan harapan dan keyakinan bahwa suatu hari mereka akan bersama lagi di bawah langit biru yang sama.</p>
+                            <p>Dalam bab ini, kita melihat betapa kuatnya cinta Sarah dan Ryan meskipun mereka terpisah oleh waktu dan jarak. Mereka terus melanjutkan perjalanan hidup mereka dengan rindu yang membara dalam hati. Bagaimana nasib mereka akan berkembang? Apakah mereka akan berhasil bersatu kembali ataukah rindu itu hanya akan menjadi kenangan indah di bawah langit biru? Jawabannya terletak di halaman-halaman selanjutnya dari kisah ini yang akan menguak misteri takdir cinta mereka.</p>
+                        </div>
+                        <div class="page-back-content">Halaman 13</div>
+                        <div class="page-nav-area left"></div>
+                        <div class="page-nav-area right"></div>
+                    </div>
+
+                    <div class="book-page" id="page14">
+                        <div class="page-content">
+                            <h2>BAB. 3<br>Pergulatan Rindu dan Pertemuan Kembali</h2>
+                            <p>Rindu yang membara dalam hati Sarah dan Ryan semakin mendalam seiring berjalannya waktu. Setiap hari mereka terus mengingat satu sama lain, memikirkan momen-momen indah yang pernah mereka bagi. Namun, meskipun rindu itu begitu kuat, mereka juga harus berhadapan dengan kenyataan bahwa hidup terus berjalan dan tanggung jawab mereka menuntut perhatian.</p>
+                            <p>Sarah terus menjalani pekerjaannya sebagai seorang **bidan**, memberikan pelayanan kesehatan dan pendampingan kepada para ibu hamil, serta membantu persalinan dengan penuh kasih sayang. Tangannya sigap menolong setiap nyawa baru lahir, dan senyumnya menenangkan setiap ibu yang berjuang. Namun, di balik senyumnya yang cerah, terdapat rindu yang terpendam dalam hatinya. Rindu akan kehadiran Ryan, pria yang telah membuat hatinya berbunga-bunga.</p>
+                        </div>
+                        <div class="page-back-content">Halaman 14</div>
+                        <div class="page-nav-area left"></div>
+                        <div class="page-nav-area right"></div>
+                    </div>
+
+                    <div class="book-page" id="page15">
+                        <div class="page-content">
+                            <p>Ryan, di sisi lain, menjalani kehidupannya sebagai seorang pengusaha sukses. Meskipun memiliki segala kekayaan materi, dia menyadari bahwa kekayaan sejati adalah saat dia bisa bersama dengan Sarah. Dia terus bekerja keras untuk mencapai kesuksesan, tetapi tak pernah melupakan tujuan utamanya: membangun masa depan bersama dengan cinta sejatinya.</p>
+                            <p>Namun, nasib mereka berdua akhirnya memberikan petunjuk tentang pertemuan yang telah lama mereka tunggu. Suatu hari, Sarah menerima panggilan tak terduga dari seorang teman lama yang tinggal di kota besar tempat Ryan berada. Temannya memberitahu bahwa dia sedang mengadakan acara perayaan dan mengundang Sarah untuk datang.</p>
+                        </div>
+                        <div class="page-back-content">Halaman 15</div>
+                        <div class="page-nav-area left"></div>
+                        <div class="page-nav-area right"></div>
+                    </div>
+
+                    <div class="book-page" id="page16">
+                        <div class="page-content">
+                            <p>Sarah merasa getaran kegembiraan dan kecemasan yang tak terkendali. Dia tahu bahwa ini bisa menjadi kesempatan untuk bertemu dengan Ryan setelah begitu lama terpisah. Dalam hatinya, dia berdoa agar takdir mempertemukan mereka kembali dan mengabulkan rindu yang membara selama ini.</p>
+                            <p>Mereka bertemu di acara perayaan tersebut, di tengah kerumunan orang yang riuh. Sarah memandang sekeliling dengan hati yang berdebar, mencari wajah yang telah lama ia rindukan. Dan di tengah kerumunan itu, matanya akhirnya bertemu dengan pandangan intens Ryan yang penuh dengan cinta dan rindu.</p>
+                        </div>
+                        <div class="page-back-content">Halaman 16</div>
+                        <div class="page-nav-area left"></div>
+                        <div class="page-nav-area right"></div>
+                    </div>
+
+                    <div class="book-page" id="page17">
+                        <div class="page-content">
+                            <p>Segala perasaan yang telah lama dipendam meledak dalam hati mereka saat mereka saling berpelukan. Rindu yang begitu kuat akhirnya bertemu dengan kehadiran yang mereka nantikan selama ini. Mereka tidak bisa menyembunyikan kebahagiaan dan air mata haru yang mengalir di wajah mereka. Kini, mereka tahu bahwa rindu mereka telah berbuah manis dengan pertemuan ini.</p>
+                            <p>Dalam pertemuan mereka yang penuh cinta dan kebahagiaan, mereka merencanakan masa depan mereka bersama. Mereka berjanji untuk tidak lagi membiarkan waktu dan jarak menghalangi cinta mereka. Sarah dan Ryan menyadari bahwa kebersamaan mereka adalah anugerah yang tak ternilai, dan mereka siap untuk menjalani segala lika-liku kehidupan bersama, karena cinta mereka tak bisa diukur oleh waktu.</p>
+                        </div>
+                        <div class="page-back-content">Halaman 17</div>
+                        <div class="page-nav-area left"></div>
+                        <div class="page-nav-area right"></div>
+                    </div>
+
+                    <div class="book-page" id="page18">
+                        <div class="page-content">
+                            <p>Bab ini merupakan titik balik dalam kisah cinta Sarah dan Ryan. Pertemuan mereka yang lama ditunggu-tunggu menghadirkan kebahagiaan yang begitu mendalam. Rindu yang membara akhirnya dipertemukan oleh takdir, membuka babak baru dalam kisah mereka yang penuh dengan keajaiban dan tantangan.</p>
+                            <p>Dalam cerita ini, kita menyaksikan bagaimana rindu yang pada awalnya menjadi penghalang bagi hubungan Sarah dan Ryan, akhirnya menjadi pengikat yang mengikat hati mereka.</p>
+                            <p>Mereka belajar bahwa rindu bukanlah hal yang harus dihindari atau diabaikan, melainkan sebuah pengingat akan betapa kuatnya cinta yang mereka miliki.</p>
+                        </div>
+                        <div class="page-back-content">Halaman 18</div>
+                        <div class="page-nav-area left"></div>
+                        <div class="page-nav-area right"></div>
+                    </div>
+
+                    <div class="book-page" id="page19">
+                        <div class="page-content">
+                            <p>Dalam perjalanan cinta ini, pembaca diajak untuk merenungkan makna sejati dari cinta dan kesetiaan. Sarah dan Ryan mengajarkan kita untuk menghargai setiap momen berharga bersama orang yang kita cintai, karena waktu dan jarak tak bisa memadamkan api cinta yang menyala dalam hati.</p>
+                            <p>Melalui perjalanan yang penuh lika-liku ini, novel "Rindu" menawarkan pesan tentang kekuatan rindu sebagai perekat cinta. Rindu menjadi pendorong bagi mereka untuk selalu memberikan yang terbaik bagi orang yang mereka cintai, meskipun terpisah oleh waktu dan ruang.</p>
+                        </div>
+                        <div class="page-back-content">Halaman 19</div>
+                        <div class="page-nav-area left"></div>
+                        <div class="page-nav-area right"></div>
+                    </div>
+
+                    <div class="book-page" id="page20">
+                        <div class="page-content">
+                            <p>Sebagai penutup kisah ini, menekankan bahwa cinta dan rindu adalah dua hal yang tak terpisahkan dalam kehidupan kita. Rindu adalah bentuk cinta yang mendalam dan menyatakan bahwa cinta sejati akan selalu bertahan meskipun diuji oleh jarak dan waktu.</p>
+                            <p>Karangan ini menyajikan sebuah cerita yang menyentuh dan menginspirasi, mengajarkan kita tentang arti sejati dari cinta, kesetiaan, dan kekuatan rindu. Semoga kisah cinta Sarah dan Ryan akan mengilhami seseorang untuk selalu mencintai dengan sepenuh hati, melewati segala rintangan dengan penuh keyakinan, dan menghargai setiap momen indah bersama orang yang mereka cintai di bawah langit biru.</p>
+                        </div>
+                        <div class="page-back-content">Halaman 20</div>
+                        <div class="page-nav-area left"></div>
+                        <div class="page-nav-area right"></div>
+                    </div>
+
+                    <div class="book-page" id="page21">
+                        <div class="page-content">
+                            <canvas id="heartCanvas"></canvas>
+                            <div class="thank-you-text">Terima Kasih^^</div> </div>
+                        <div class="page-back-content"></div>
+                        <div class="page-nav-area left"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="book-cover back"></div>
+        </div>
+    </div>
+
+    <script>
+        const bookPages = document.querySelectorAll('.book-page');
+        const frontCover = document.querySelector('.book-cover.front');
+        const coverRightClickArea = document.getElementById('cover-right-click-area');
+        const spinePageInfo = document.getElementById('spine-page-info');
+
+        // Dapatkan elemen audio
+        const flipPageSound = document.getElementById('flipPageSound');
+        const backgroundMusic = document.getElementById('backgroundMusic');
+        const muteButton = document.getElementById('muteButton');
+        const muteIcon = muteButton.querySelector('img');
+
+        let isMuted = false; // Status awal: tidak di-mute
+
+        let currentPageIndex = -1; // -1 untuk buku tertutup, 0 untuk halaman pertama (setelah cover dibuka)
+        const totalPages = bookPages.length; // Otomatis akan menghitung halaman 21
+        let isAnimating = false; // Flag untuk mencegah klik saat animasi berjalan
+
+        // --- Live Clock Script ---
+        function updateLiveClock() {
+            const now = new Date();
+            const options = {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false, // Use 24-hour format
+                timeZoneName: 'short',
+            };
+            const clockElement = document.getElementById('live-clock');
+            if (clockElement) {
+                clockElement.textContent = now.toLocaleDateString('en-US', options);
+            }
+        }
+
+        // Update clock every second
+        setInterval(updateLiveClock, 1000);
+        updateLiveClock(); // Initial call to display clock immediately
+        // --- End Live Clock Script ---
+
+        // --- Heart Particle Effect Script ---
+        // Optimized settings for smooth performance
+        const heartSettings = {
+            particles: {
+                length: 800, // Kembali ke jumlah awal atau sesuaikan untuk full screen
+                duration: 3, // Durasi awal
+                velocity: 100, // Kecepatan awal
+                effect: -0.75, // Efek awal
+                size: 20, // Ukuran awal
+            },
+            modes: {
+                colorful: { colors: ['#ff6b6b', '#ffd93d', '#6bcf7f', '#4d9de0', '#9b59b6', '#ff8a65'] },
+                romantic: { colors: ['#ff1744', '#e91e63', '#ff4081', '#f8bbd9', '#ffcdd2'] },
+                sunset: { colors: ['#ff7043', '#ff5722', '#ffab40', '#ffc107', '#ff8f00'] },
+                ocean: { colors: ['#00bcd4', '#0097a7', '#26c6da', '#4fc3f7', '#29b6f6'] },
+                galaxy: { colors: ['#673ab7', '#9c27b0', '#e91e63', '#3f51b5', '#8bc34a'] }
+            }
+        };
+
+        let currentHeartSettings = { ...heartSettings };
+        let currentHeartColorMode = 'colorful'; // Kembali ke mode awal
+        let currentHeartSpeedMode = 1;
+        let currentHeartSizeMode = 1;
+        let isHeartAnimationPaused = false;
+        let heartAnimationId;
+
+        const heartCanvas = document.getElementById('heartCanvas');
+        let heartContext;
+        let heartParticles;
+        let heartParticleRate;
+        let heartTime;
+        let heartImage;
+
+        if (heartCanvas) {
+            heartContext = heartCanvas.getContext('2d');
+        }
+
+        function getRandomHeartColor(mode = currentHeartColorMode) {
+            const colors = heartSettings.modes[mode].colors;
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+
+        class Point {
+            constructor(x = 0, y = 0) {
+                this.x = x;
+                this.y = y;
+            }
+
+            clone() {
+                return new Point(this.x, this.y);
+            }
+
+            length(length) {
+                if (typeof length === 'undefined')
+                    return Math.sqrt(this.x * this.x + this.y * this.y);
+                this.normalize();
+                this.x *= length;
+                this.y *= length;
+                return this;
+            }
+
+            normalize() {
+                const length = this.length();
+                if (length === 0) return this;
+                this.x /= length;
+                this.y /= length;
+                return this;
+            }
+        }
+
+        class Particle {
+            constructor() {
+                this.position = new Point();
+                this.velocity = new Point();
+                this.acceleration = new Point();
+                this.age = 0;
+                this.color = getRandomHeartColor();
+                this.rotation = Math.random() * Math.PI * 2;
+                this.rotationSpeed = (Math.random() - 0.5) * 0.1;
+                this.scale = 0.5 + Math.random() * 0.5;
+                this.glowIntensity = Math.random();
+            }
+
+            initialize(x, y, dx, dy) {
+                this.position.x = x;
+                this.position.y = y;
+                this.velocity.x = dx;
+                this.velocity.y = dy;
+                this.acceleration.x = dx * currentHeartSettings.particles.effect;
+                this.acceleration.y = dy * currentHeartSettings.particles.effect;
+                this.age = 0;
+                this.color = getRandomHeartColor();
+                this.rotation = Math.random() * Math.PI * 2;
+                this.rotationSpeed = (Math.random() - 0.5) * 0.1;
+                this.scale = 0.5 + Math.random() * 0.5;
+                this.glowIntensity = 0.2 + Math.random() * 0.6; // Intensitas glow lebih halus
+            }
+
+            update(deltaTime) {
+                this.position.x += this.velocity.x * deltaTime * currentHeartSpeedMode;
+                this.position.y += this.velocity.y * deltaTime * currentHeartSpeedMode;
+                this.velocity.x += this.acceleration.x * deltaTime;
+                this.velocity.y += this.acceleration.y * deltaTime;
+                this.age += deltaTime;
+                this.rotation += this.rotationSpeed;
+            }
+
+            draw(context, image) {
+                const ease = t => (--t) * t * t * t + 1; // Menggunakan easeOutQuart untuk transisi lebih smooth
+                const progress = this.age / currentHeartSettings.particles.duration;
+                if (progress > 1) return;
+                const size = image.width * ease(progress) * this.scale * currentHeartSizeMode;
+                const alpha = 1 - progress;
+
+                context.save();
+                context.globalAlpha = alpha;
+                context.translate(this.position.x, this.position.y);
+                context.rotate(this.rotation);
+
+                context.shadowBlur = 10 * this.glowIntensity; // Mengurangi shadowBlur
+                context.shadowColor = this.color;
+
+                context.fillStyle = this.color;
+                context.beginPath();
+                this.drawHeart(context, size);
+                context.fill();
+
+                context.restore();
+            }
+
+            drawHeart(context, size) {
+                const scale = size / 100;
+                context.beginPath();
+                context.moveTo(0, -30 * scale);
+                context.bezierCurveTo(-50 * scale, -80 * scale, -90 * scale, -10 * scale, 0, 30 * scale);
+                context.bezierCurveTo(90 * scale, -10 * scale, 50 * scale, -80 * scale, 0, -30 * scale);
+                context.closePath();
+            }
+        }
+
+        class ParticlePool {
+            constructor(length) {
+                this.particles = [];
+                for (let i = 0; i < length; i++) {
+                    this.particles[i] = new Particle();
+                }
+                this.firstActive = 0;
+                this.firstFree = 0;
+                this.duration = currentHeartSettings.particles.duration;
+            }
+
+            add(x, y, dx, dy) {
+                this.particles[this.firstFree].initialize(x, y, dx, dy);
+                this.firstFree++;
+                if (this.firstFree === this.particles.length) this.firstFree = 0;
+                if (this.firstActive === this.firstFree) this.firstActive++;
+                if (this.firstActive === this.particles.length) this.firstActive = 0;
+            }
+
+            update(deltaTime) {
+                let i;
+                if (this.firstActive < this.firstFree) {
+                    for (i = this.firstActive; i < this.firstFree; i++)
+                        this.particles[i].update(deltaTime);
+                }
+                if (this.firstFree < this.firstActive) {
+                    for (i = this.firstActive; i < this.particles.length; i++)
+                        this.particles[i].update(deltaTime);
+                    for (i = 0; i < this.firstFree; i++)
+                        this.particles[i].update(deltaTime);
+                }
+
+                while (this.particles[this.firstActive].age >= this.duration && this.firstActive !== this.firstFree) {
+                    this.firstActive++;
+                    if (this.firstActive === this.particles.length) this.firstActive = 0;
+                }
+            }
+
+            draw(context, image) {
+                let i;
+                if (this.firstActive < this.firstFree) {
+                    for (i = this.firstActive; i < this.firstFree; i++)
+                        this.particles[i].draw(context, image);
+                }
+                if (this.firstFree < this.firstActive) {
+                    for (i = this.firstActive; i < this.particles.length; i++)
+                        this.particles[i].draw(context, image);
+                    for (i = 0; i < this.firstFree; i++)
+                        this.particles[i].draw(context, image);
+                }
+            }
+
+            getActiveCount() {
+                if (this.firstActive <= this.firstFree) {
+                    return this.firstFree - this.firstActive;
+                }
+                return this.particles.length - this.firstActive + this.firstFree;
+            }
+        }
+
+        function pointOnHeart(t) {
+            return new Point(
+                160 * Math.pow(Math.sin(t), 3),
+                130 * Math.cos(t) - 50 * Math.cos(2 * t) - 20 * Math.cos(3 * t) - 10 * Math.cos(4 * t) + 25
+            );
+        }
+
+        function createHeartImage() {
+            const canvasImg = document.createElement('canvas');
+            const contextImg = canvasImg.getContext('2d');
+            canvasImg.width = currentHeartSettings.particles.size;
+            canvasImg.height = currentHeartSettings.particles.size;
+
+            function to(t) {
+                const point = pointOnHeart(t);
+                point.x = currentHeartSettings.particles.size / 2 + point.x * currentHeartSettings.particles.size / 350;
+                point.y = currentHeartSettings.particles.size / 2 - point.y * currentHeartSettings.particles.size / 350;
+                return point;
+            }
+
+            contextImg.beginPath();
+            let t = -Math.PI;
+            let point = to(t);
+            contextImg.moveTo(point.x, point.y);
+            while (t < Math.PI) {
+                t += 0.01;
+                point = to(t);
+                contextImg.lineTo(point.x, point.y);
+            }
+            contextImg.closePath();
+            contextImg.fillStyle = '#ff30c5';
+            contextImg.fill();
+
+            const image = new Image();
+            image.src = canvasImg.toDataURL();
+            return image;
+        }
+
+        function initHeartAnimation() {
+            if (!heartCanvas) return;
+
+            heartParticles = new ParticlePool(currentHeartSettings.particles.length);
+            heartParticleRate = currentHeartSettings.particles.length / currentHeartSettings.particles.duration;
+            heartTime = new Date().getTime() / 1000;
+            heartImage = createHeartImage();
+            onHeartCanvasResize(); // Set initial canvas size
+
+            // Pastikan animasi hanya berjalan jika belum ada
+            if (!heartAnimationId) {
+                renderHeartAnimation();
+            }
+        }
+
+        function renderHeartAnimation() {
+            if (!heartContext || isHeartAnimationPaused) {
+                heartAnimationId = null;
+                return;
+            }
+
+            heartAnimationId = requestAnimationFrame(renderHeartAnimation);
+
+            const newTime = new Date().getTime() / 1000;
+            const deltaTime = newTime - (heartTime || newTime);
+            heartTime = newTime;
+
+            heartContext.fillStyle = 'rgba(245, 240, 225, 0.05)'; // Sedikit trail dengan warna kertas halaman
+            heartContext.fillRect(0, 0, heartCanvas.width, heartCanvas.height);
+
+            const amount = heartParticleRate * deltaTime;
+            for (let i = 0; i < amount; i++) {
+                const pos = pointOnHeart(Math.PI - 2 * Math.PI * Math.random());
+                const dir = pos.clone().length(currentHeartSettings.particles.velocity);
+
+                // Sesuaikan posisi agar hati muncul dari tengah dan menyebar ke seluruh kanvas
+                heartParticles.add(
+                    heartCanvas.width / 2 + pos.x * 0.5, // Mengurangi penyebaran awal
+                    heartCanvas.height / 2 - pos.y * 0.5,
+                    dir.x,
+                    -dir.y
+                );
+            }
+
+            heartParticles.update(deltaTime);
+            heartParticles.draw(heartContext, heartImage);
+        }
+
+        function stopHeartAnimation() {
+            if (heartAnimationId) {
+                cancelAnimationFrame(heartAnimationId);
+                heartAnimationId = null;
+            }
+            if (heartContext) {
+                heartContext.clearRect(0, 0, heartCanvas.width, heartCanvas.height);
+            }
+        }
+
+        function onHeartCanvasResize() {
+            if (!heartCanvas) return;
+            const parentPageContent = document.querySelector('#page21 .page-content');
+            if (parentPageContent) {
+                heartCanvas.width = parentPageContent.clientWidth;
+                heartCanvas.height = parentPageContent.clientHeight;
+            } else {
+                heartCanvas.width = heartCanvas.clientWidth;
+                heartCanvas.height = heartCanvas.clientHeight;
+            }
+        }
+        // --- End Heart Particle Effect Script ---
+
+
+        // Fungsi untuk memperbarui teks di punggung buku
+        function updateSpineText() {
+            if (currentPageIndex === -1) {
+                spinePageInfo.textContent = ""; // Kosong saat buku tertutup
+            } else if (currentPageIndex >= 0 && currentPageIndex < totalPages -1) { // Sampai halaman 20
+                spinePageInfo.textContent = `Rindu ${currentPageIndex + 1}`; // Nomor halaman sesuai indeks + 1
+            } else if (currentPageIndex === totalPages - 1) { // Untuk halaman terakhir (page21)
+                spinePageInfo.textContent = ""; // Kosongkan untuk halaman terakhir
+            }
+        }
+
+        // Fungsi untuk mengatur z-index semua halaman
+        function setPageZIndexes() {
+            bookPages.forEach((page, index) => {
+                if (index === currentPageIndex) {
+                    page.style.zIndex = totalPages + 10; // Halaman aktif paling atas
+                } else if (index < currentPageIndex) {
+                    page.style.zIndex = index + 1; // Halaman yang sudah terbalik, sesuai urutan
+                } else {
+                    page.style.zIndex = totalPages - index; // Halaman yang belum terbalik, dari atas ke bawah
+                }
+            });
+            if (currentPageIndex > -1) {
+                frontCover.style.zIndex = 1; // Cover di belakang halaman saat terbuka
+            } else {
+                frontCover.style.zIndex = 15; // Cover di depan saat buku tertutup
+            }
+            updateSpineText();
+
+            // Kontrol animasi hati dan efek ketikan berdasarkan halaman
+            const thankYouTextElement = document.querySelector('.thank-you-text');
+            if (currentPageIndex === totalPages - 1) { // totalPages - 1 karena indeks mulai dari 0
+                initHeartAnimation();
+                if (thankYouTextElement) {
+                    // Set opacity ke 1 untuk memulai animasi typing
+                    thankYouTextElement.style.opacity = '1';
+                    // Restart animasi typing dengan mengatur ulang properti
+                    thankYouTextElement.style.animation = 'none';
+                    void thankYouTextElement.offsetWidth; // Trigger reflow
+                    thankYouTextElement.style.animation = 'typing 3s steps(20, end) forwards, blink-caret .75s step-end infinite';
+                }
+            } else {
+                stopHeartAnimation();
+                if (thankYouTextElement) {
+                    thankYouTextElement.style.opacity = '0'; // Sembunyikan teks
+                    thankYouTextElement.style.animation = 'none'; // Hentikan animasi
+                    thankYouTextElement.style.width = '0'; // Reset lebar
+                }
+            }
+        }
+
+        // Fungsi untuk memainkan suara
+        function playSound(audioElement, startTime = 0.01) {
+            audioElement.currentTime = startTime;
+            audioElement.play().catch(e => console.error("Error playing sound:", e));
+        }
+
+        // Fungsi untuk membuka sampul depan
+        function openBook() {
+            if (isAnimating) return;
+            if (currentPageIndex === -1) {
+                isAnimating = true;
+                frontCover.classList.add('open');
+                frontCover.addEventListener('transitionend', function handler() {
+                    frontCover.removeEventListener('transitionend', handler);
+                    currentPageIndex = 0;
+                    setPageZIndexes();
+                    isAnimating = false;
+                }, { once: true });
+            }
+        }
+
+        // Fungsi untuk membalik halaman maju (ke halaman berikutnya)
+        function flipNextPage() {
+            if (isAnimating) return;
+            if (currentPageIndex === -1) {
+                openBook();
+                return;
+            }
+
+            if (currentPageIndex < totalPages - 1) { // totalPages - 1 agar tidak membalik setelah halaman terakhir
+                isAnimating = true;
+                const pageToFlip = bookPages[(currentPageIndex)];
+
+                pageToFlip.style.zIndex = totalPages + 10;
+
+                playSound(flipPageSound);
+                pageToFlip.classList.remove('stacked-left');
+                pageToFlip.classList.add('flipped');
+
+                pageToFlip.addEventListener('transitionend', function handler() {
+                    pageToFlip.removeEventListener('transitionend', handler);
+                    pageToFlip.classList.add('stacked-left');
+                    currentPageIndex++;
+                    setPageZIndexes();
+                    isAnimating = false;
+                }, { once: true });
+            } else if (currentPageIndex === totalPages -1) {
+                 // Untuk halaman terakhir, tidak ada halaman untuk dibalik lagi.
+                 // Tambahkan logika jika ada yang ingin dilakukan di sini (misal: tombol next tidak berfungsi)
+                 console.log("Sudah di halaman terakhir.");
+            }
+        }
+
+        // Fungsi untuk membalik halaman mundur (ke halaman sebelumnya)
+        function flipPrevPage() {
+            if (isAnimating) return;
+
+            if (currentPageIndex > 0) {
+                isAnimating = true;
+                const pageToUnflip = bookPages[(currentPageIndex - 1)];
+
+                pageToUnflip.style.zIndex = totalPages + 10;
+
+                playSound(flipPageSound);
+                pageToUnflip.classList.remove('stacked-left');
+                pageToUnflip.classList.remove('flipped');
+
+                pageToUnflip.addEventListener('transitionend', function handler() {
+                    pageToUnflip.removeEventListener('transitionend', handler);
+                    currentPageIndex--;
+                    setPageZIndexes();
+                    isAnimating = false;
+                }, { once: true });
+            } else if (currentPageIndex === 0) {
+                isAnimating = true;
+                const pageToUnflip = bookPages[(0)];
+
+                pageToUnflip.classList.remove('stacked-left');
+                pageToUnflip.classList.remove('flipped');
+                pageToUnflip.style.zIndex = totalPages - 0;
+
+                frontCover.classList.remove('open');
+
+                frontCover.addEventListener('transitionend', function handler() {
+                    frontCover.removeEventListener('transitionend', handler);
+                    currentPageIndex = -1;
+                    setPageZIndexes();
+                    isAnimating = false;
+                }, { once: true });
+            } else {
+                console.log("Sudah di halaman pertama (buku tertutup).");
+            }
+        }
+
+        // --- Event Listener untuk Klik Halaman ---
+        coverRightClickArea.addEventListener('click', () => {
+            openBook();
+        });
+
+        bookPages.forEach((page, index) => {
+            const rightNavArea = page.querySelector('.page-nav-area.right');
+            if (rightNavArea) {
+                rightNavArea.addEventListener('click', () => {
+                    if (index === currentPageIndex) {
+                        flipNextPage();
+                    }
+                });
+            }
+
+            const leftNavArea = page.querySelector('.page-nav-area.left');
+            if (leftNavArea) {
+                leftNavArea.addEventListener('click', () => {
+                    // Hanya memungkinkan membalik jika halaman yang diklik adalah halaman aktif atau halaman sebelumnya yang sudah terbuka
+                    if (index === currentPageIndex || index === currentPageIndex - 1) {
+                        flipPrevPage();
+                    }
+                });
+            }
+        });
+
+        // Fungsi untuk mencoba memutar musik secara otomatis
+        function tryPlayBackgroundMusic() {
+            backgroundMusic.play()
+                .then(() => {
+                    console.log("Musik latar diputar otomatis.");
+                })
+                .catch(error => {
+                    // Autoplay was prevented. User must interact first.
+                    console.warn("Autoplay musik latar dicegah. Tunggu interaksi pengguna.", error);
+                    // Kita bisa menambahkan pesan ke pengguna atau mengubah ikon mute
+                    // menjadi ikon 'play' jika kita ingin memberi tahu mereka untuk mengklik
+                    // untuk memutar musik. Untuk saat ini, biatkan saja dan biarkan tombol mute berfungsi.
+                });
+        }
+
+        // Event listener untuk toggle mute
+        muteButton.addEventListener('click', () => {
+            if (backgroundMusic.paused) {
+                backgroundMusic.play();
+                // Menggunakan gambar baru untuk audio HIDUP
+                muteIcon.src = "https://raw.githubusercontent.com/johanwirawan/johanwirawannnn/refs/heads/main/images%20(22)-picsay.jpeg";
+                muteIcon.alt = "Unmute"; // Mengubah alt text
+                isMuted = false;
+            } else {
+                backgroundMusic.pause();
+                // Menggunakan gambar baru untuk audio MATI
+                muteIcon.src = "https://raw.githubusercontent.com/johanwirawan/johanwirawannnn/refs/heads/main/images%20(22).jpeg";
+                muteIcon.alt = "Mute"; // Mengubah alt text
+                isMuted = true;
+            }
+        });
+
+        // Dapatkan elemen loading screen
+        const loadingScreen = document.getElementById('loadingScreen');
+
+        // Fungsi untuk menyembunyikan layar loading
+        function hideLoadingScreen() {
+            loadingScreen.classList.add('hidden');
+            // Hapus elemen setelah transisi selesai untuk membersihkan DOM
+            loadingScreen.addEventListener('transitionend', () => {
+                loadingScreen.remove();
+            }, { once: true });
+        }
+
+        // Event listener untuk memastikan semua aset dimuat
+        // Gunakan window.onload untuk memastikan semua gambar, audio, dll. selesai dimuat
+        window.addEventListener('load', () => {
+            // Beri sedikit jeda agar pengguna bisa melihat tutorial
+            setTimeout(() => {
+                hideLoadingScreen();
+                // Coba putar musik latar setelah loading screen hilang dan ada interaksi pertama
+                // (listener di body akan menangani ini)
+                tryPlayBackgroundMusic();
+            }, 5000); // Tampilkan loading screen selama 5 detik setelah semua dimuat
+        });
+
+        // Tambahkan event listener untuk interaksi pengguna pertama kali
+        // Ini membantu melewati batasan autoplay pada beberapa browser.
+        document.body.addEventListener('click', () => {
+            if (backgroundMusic.paused && !isMuted) { // Hanya coba putar jika belum diputar dan tidak di-mute
+                tryPlayBackgroundMusic();
+            }
+        }, { once: true }); // Hanya aktifkan sekali setelah klik pertama
+
+
+        // Inisialisasi z-index dan teks punggung buku saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', () => {
+             setPageZIndexes();
+             updateSpineText();
+        });
+
+        window.addEventListener('resize', onHeartCanvasResize);
+    </script>
+</body>
+</html>
